@@ -1,66 +1,39 @@
-// controllers/reviewController.js
-const Review = require('../models/reviewModel');
+const db = require('../Config/db');
 
-// Ambil semua reviews
-exports.getAllReviews = (req, res) => {
-    Review.getAllReviews((err, results) => {
-        if (err) {
-            return res.status(500).json({ error: 'Error fetching reviews' });
-        }
-        res.json(results);
-    });
-};
-
-// Ambil review berdasarkan ID
-exports.getReviewById = (req, res) => {
-    const id = req.params.id;
-    Review.getReviewById(id, (err, result) => {
-        if (err) {
-            return res.status(500).json({ error: 'Error fetching review' });
-        }
-        if (result.length === 0) {
-            return res.status(404).json({ error: 'Review not found' });
-        }
-        res.json(result[0]);
-    });
-};
-
-// Buat review baru
+// Create new review
 exports.createReview = (req, res) => {
-    const newReview = req.body;
-    Review.createReview(newReview, (err, result) => {
-        if (err) {
-            return res.status(500).json({ error: 'Error creating review' });
-        }
-        res.status(201).json({ message: 'Review created successfully' });
-    });
+  const { book_id, user_id, rating, comment } = req.body;
+  const query = 'INSERT INTO reviews (book_id, user_id, rating, comment, created_at) VALUES (?, ?, ?, ?, NOW())';
+  db.query(query, [book_id, user_id, rating, comment], (err, result) => {
+    if (err) throw err;
+    res.send('Review added successfully');
+  });
 };
 
-// Update review
+// Get all reviews
+exports.getAllReviews = (req, res) => {
+  db.query('SELECT * FROM reviews', (err, results) => {
+    if (err) throw err;
+    res.json(results);
+  });
+};
+
+// Update review by id
 exports.updateReview = (req, res) => {
-    const id = req.params.id;
-    const updatedData = req.body;
-    Review.updateReview(id, updatedData, (err, result) => {
-        if (err) {
-            return res.status(500).json({ error: 'Error updating review' });
-        }
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Review not found' });
-        }
-        res.json({ message: 'Review updated successfully' });
-    });
+  const { id } = req.params;
+  const { book_id, user_id, rating, comment } = req.body;
+  const query = 'UPDATE reviews SET book_id = ?, user_id = ?, rating = ?, comment = ? WHERE id = ?';
+  db.query(query, [book_id, user_id, rating, comment, id], (err, result) => {
+    if (err) throw err;
+    res.send('Review updated successfully');
+  });
 };
 
-// Delete review
+// Delete review by id
 exports.deleteReview = (req, res) => {
-    const id = req.params.id;
-    Review.deleteReview(id, (err, result) => {
-        if (err) {
-            return res.status(500).json({ error: 'Error deleting review' });
-        }
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Review not found' });
-        }
-        res.json({ message: 'Review deleted successfully' });
-    });
+  const { id } = req.params;
+  db.query('DELETE FROM reviews WHERE id = ?', [id], (err, result) => {
+    if (err) throw err;
+    res.send('Review deleted successfully');
+  });
 };

@@ -1,13 +1,12 @@
-// routes/reviewRoutes.js
 const express = require('express');
-const reviewController = require('../controllers/reviewController');
 const router = express.Router();
+const reviewController = require('../controllers/reviewController');
+const authenticateToken = require('../Middlewares/authMiddleware');
 
-// Route CRUD
-router.get('/reviews', reviewController.getAllReviews);
-router.get('/reviews/:id', reviewController.getReviewById);
-router.post('/reviews', reviewController.createReview);
-router.put('/reviews/:id', reviewController.updateReview);
-router.delete('/reviews/:id', reviewController.deleteReview);
+// Routes untuk ulasan
+router.post('/', authenticateToken, reviewController.createReview);
+router.get('/', authenticateToken, reviewController.getAllReviews);
+router.put('/:id', authenticateToken, reviewController.updateReview);
+router.delete('/:id', authenticateToken, reviewController.deleteReview);
 
 module.exports = router;
